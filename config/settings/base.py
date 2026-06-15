@@ -20,7 +20,14 @@ THIRD_PARTY_APPS = [
     'rest_framework',
 ]
 
-LOCAL_APPS = []
+LOCAL_APPS = [
+    'apps.users',
+    'apps.organizations',
+    'apps.tickets',
+    'apps.comments',
+    'apps.notifications',
+    'apps.common',
+]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -74,3 +81,5 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
+
+AUTH_USER_MODEL = "users.CustomUser"
