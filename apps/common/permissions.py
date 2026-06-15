@@ -10,13 +10,13 @@ class IsAdmin(permissions.BasePermission):
         
         return request.user.role == "Admin"
     
-class IsAgent(permissions.BasePermission):
-    message = 'You must be an Agent to proceed.'
+class IsAgentOrAdmin(permissions.BasePermission):
+    message = 'You must be an Agent or an Admin to proceed.'
 
     def has_permission(self, request, view):
         if not bool(request.user and request.user.is_authenticated):
             return False
         
-        return request.user.role == "Agent"
+        return request.user.role in ['Agent', 'Admin']
 
     

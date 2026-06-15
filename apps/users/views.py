@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from apps.users.serializers import RegisterSerializer, LoginSerializer, LogoutSerializer
-from apps.common.permissions import IsAdmin, IsAgent
+from apps.common.permissions import IsAdmin, IsAgentOrAdmin
 
 class RegisterAPIView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
