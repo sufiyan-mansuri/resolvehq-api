@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from apps.users.serializers import RegisterSerializer, LoginSerializer, LogoutSerializer
+from apps.common.permissions import IsAdmin, IsAgent
 
 class RegisterAPIView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
@@ -28,9 +29,21 @@ class LogoutAPIView(generics.GenericAPIView):
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class ProtectedTestAPIView(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+# class ProtectedTestAPIView(views.APIView):
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def get(self, request):
+#         return Response("You are a genuine user", status=status.HTTP_200_OK)
     
-    def get(self, request):
-        return Response("You are a genuine user", status=status.HTTP_200_OK)
+# class AdminOnlyAPIView(views.APIView):
+#     permission_classes = [permissions.IsAuthenticated, IsAdmin]
+
+#     def get(self, request):
+#         return Response("You are an authenticated Admin")
+
+# class AgentOnlyAPIView(views.APIView):
+#     permission_classes = [permissions.IsAuthenticated, IsAgent]
+
+#     def get(self, request):
+#         return Response("You are an authenticated Agent")
     
