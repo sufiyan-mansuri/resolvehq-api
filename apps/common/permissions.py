@@ -8,7 +8,7 @@ class IsAdmin(permissions.BasePermission):
         if not bool(request.user and request.user.is_authenticated):
             return False
         
-        return request.user.role == "Admin"
+        return request.user.role == "admin"
     
 class IsAgentOrAdmin(permissions.BasePermission):
     message = 'You must be an Agent or an Admin to proceed.'
@@ -17,6 +17,6 @@ class IsAgentOrAdmin(permissions.BasePermission):
         if not bool(request.user and request.user.is_authenticated):
             return False
         
-        return request.user.role in ['Agent', 'Admin']
+        return request.user.role in ['agent', 'admin']
 
     

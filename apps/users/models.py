@@ -31,9 +31,9 @@ class CustomUserManager(BaseUserManager):
 
 class CustomUser(AbstractBaseUser):
     class RoleChoices(models.TextChoices):
-        ADMIN = 'Admin'
-        AGENT = 'Agent'
-        CUSTOMER = 'Customer'
+        ADMIN = 'admin', 'Admin'
+        AGENT = 'agent', 'Agent'
+        CUSTOMER = 'customer', 'Customer'
 
     email = models.EmailField(max_length=255, unique=True)
     first_name = models.CharField(max_length=255)
