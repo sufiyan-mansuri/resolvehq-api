@@ -19,7 +19,6 @@ class CustomUserManager(BaseUserManager):
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_admin", True)
-        extra_fields.setdefault("role", CustomUser.RoleChoices.ADMIN)
 
         user = self.create_user(
             email,
@@ -30,15 +29,15 @@ class CustomUserManager(BaseUserManager):
         return user
 
 class CustomUser(AbstractBaseUser):
-    class RoleChoices(models.TextChoices):
-        ADMIN = 'admin', 'Admin'
-        AGENT = 'agent', 'Agent'
-        CUSTOMER = 'customer', 'Customer'
+    # class RoleChoices(models.TextChoices):
+    #     ADMIN = 'admin', 'Admin'
+    #     AGENT = 'agent', 'Agent'
+    #     CUSTOMER = 'customer', 'Customer'
 
     email = models.EmailField(max_length=255, unique=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
-    role = models.CharField(max_length=10, choices=RoleChoices.choices, default=RoleChoices.CUSTOMER)
+    # role = models.CharField(max_length=10, choices=RoleChoices.choices, default=RoleChoices.CUSTOMER)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
