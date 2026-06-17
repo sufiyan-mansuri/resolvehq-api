@@ -10,10 +10,14 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.decorators import action
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import TicketFilter
 
 class TicketViewSet(viewsets.ModelViewSet):
     serializer_class = TicketSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = TicketFilter
 
     def get_queryset(self):
         tenant_data = get_current_org(self.request, self.kwargs)
