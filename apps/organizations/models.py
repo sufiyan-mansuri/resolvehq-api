@@ -41,7 +41,7 @@ class Membership(BaseModel):
             )
         ]
 
-    def generate_invite_token(self, hours_valid=2):
+    def generate_invite_token(self, hours_valid=24):
         self.token = secrets.token_urlsafe(32)
-        self.token_expires_at = timezone.now() + timezone.timedelta(minutes=hours_valid)
+        self.token_expires_at = timezone.now() + timezone.timedelta(hours=hours_valid)
         self.status = self.StatusChoices.PENDING
