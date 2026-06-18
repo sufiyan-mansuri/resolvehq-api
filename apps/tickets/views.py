@@ -1,5 +1,5 @@
 from rest_framework import viewsets, status
-from apps.tickets.serializers import TicketSerializer, StaffTicketSerializer
+from apps.tickets.serializers import TicketSerializer, StaffTicketSerializer, TicketDetailSerializer
 from rest_framework.permissions import IsAuthenticated
 from apps.common.utils import get_current_org
 from .models import Ticket
@@ -14,10 +14,15 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .filters import TicketFilter
 
 class TicketViewSet(viewsets.ModelViewSet):
-    serializer_class = TicketSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filterset_class = TicketFilter
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return TicketDetailSerializer
+        
+        return TicketSerializer
 
     def get_queryset(self):
         tenant_data = get_current_org(self.request, self.kwargs)

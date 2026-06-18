@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from apps.tickets.views import TicketViewSet
+from apps.comments.views import CommentListCreatView
 
 ticket_list_create = TicketViewSet.as_view({
     'get': 'list',
@@ -32,4 +33,5 @@ urlpatterns = [
     path('<slug:slug>/<uuid:pk>/assign/', ticket_assign, name='ticket-assign'),
     path('<slug:slug>/<uuid:pk>/resolve/', ticket_resolve, name='ticket-resolve'),
     path('<slug:slug>/<uuid:pk>/close/', ticket_close, name='ticket-close'),
+    path('<slug:slug>/<uuid:ticket_id>/comments/', CommentListCreatView.as_view(), name='ticket-comments'),
 ]
