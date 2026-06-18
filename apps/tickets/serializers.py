@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from apps.tickets.models import Ticket
 from apps.organizations.models import Membership
+from drf_spectacular.utils import extend_schema_field
+from apps.comments.serializers import CommentSerializer
 
 class TicketSerializer(serializers.ModelSerializer):
     class Meta:
@@ -20,10 +22,9 @@ class TicketDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
         fields = ['id', 'title', 'description', 'status', 'priority', 'assigned_to', 'created_by', 'created_at', 'updated_at', 'comment_timeline']
-
+    
+    @extend_schema_field(CommentSerializer(many=True))
     def get_comment_timeline(self, obj):
-        from apps.comments.serializers import CommentSerializer
-
         request = self.context.get('request')
         if not request:
             return []

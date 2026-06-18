@@ -11,7 +11,22 @@ from rest_framework import status
 from apps.common.utils import get_current_org
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema, extend_schema_view, inline_serializer
+from drf_spectacular.types import OpenApiTypes
+from rest_framework import serializers
 
+@extend_schema_view(
+    get=extend_schema(
+        summary="List user's organizations",
+        description="Returns a list of all organizations where the currently authenticated user is an active member.",
+        tags=['Organizations']
+    ),
+    post=extend_schema(
+        summary="Create a new organization",
+        description="Creates a new organization workspace and automatically assigns the creator as the Admin.",
+        tags=['Organizations']
+    )
+)
 class OrganizationListCreateView(ListCreateAPIView):
     serializer_class = OrganizationSerializer
     permission_classes = [IsAuthenticated]
@@ -36,6 +51,21 @@ class OrganizationListCreateView(ListCreateAPIView):
 class OrganizationInviteView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        summary="Invite user to organization",
+        description="Generates an invite token for an existing user to join the organization. Requires Admin privileges.",
+        tags=['Organizations'],
+        request=inline_serializer(
+            name='InviteRequest',
+            fields={'email': serializers.EmailField()}
+        ),
+        responses={
+            201: inline_serializer(name='InviteCreated', fields={'token': serializers.CharField(), 'detail': serializers.CharField()}),
+            200: inline_serializer(name='InviteResent', fields={'token': serializers.CharField(), 'detail': serializers.CharField()}),
+            400: OpenApiTypes.OBJECT,
+            404: OpenApiTypes.OBJECT,
+        }
+    )
     def post(self, request, slug):
         tenant_data = get_current_org(request, self.kwargs, required_role=Membership.RoleChoices.ADMIN)
         organization = tenant_data["organization"]
@@ -85,6 +115,20 @@ class OrganizationInviteView(APIView):
 class OrganizationInviteAcceptView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        summary="Accept organization invite",
+        description="Consumes a pending invite token and activates the user's membership within the organization.",
+        tags=['Organizations'],
+        request=inline_serializer(
+            name='AcceptInviteRequest',
+            fields={'token': serializers.CharField()}
+        ),
+        responses={
+            200: inline_serializer(name='AcceptInviteSuccess', fields={'detail': serializers.CharField()}),
+            400: OpenApiTypes.OBJECT,
+            404: OpenApiTypes.OBJECT,
+        }
+    )
     def post(self, request, slug):
         
         invite_token = request.data.get('token')

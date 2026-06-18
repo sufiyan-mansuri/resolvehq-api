@@ -4,19 +4,6 @@ from apps.tickets.models import Ticket
 from apps.notifications.models import Notification
 
 @receiver(post_save, sender=Ticket)
-def create_assignment_notification(sender, instance, created, update_fields, **kwargs):
-    if not created:
-        if update_fields and 'assigned_to' in update_fields:
-            if instance.assigned_to:
-                message = f"You have been assigned ticket #{instance.id}"
-
-                Notification.objects.create(
-                    user=instance.assigned_to,
-                    ticket=instance,
-                    message=message
-                )
-
-@receiver(post_save, sender=Ticket)
 def ticket_status_notifier(sender, instance, created, update_fields, **kwargs):
     if created:
         return

@@ -12,7 +12,42 @@ from rest_framework.views import APIView
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import TicketFilter
+from drf_spectacular.utils import extend_schema, extend_schema_view, inline_serializer
+from drf_spectacular.types import OpenApiTypes
+from rest_framework import serializers
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="List organization tickets",
+        description="Returns a paginated list of tickets. Customers only see their own tickets, while Agents and Admins see all organization tickets.",
+        tags=['Tickets']
+    ),
+    retrieve=extend_schema(
+        summary="Get ticket details",
+        description="Returns full ticket details, including the chronological comment timeline.",
+        tags=['Tickets']
+    ),
+    create=extend_schema(
+        summary="Create a new ticket",
+        description="Opens a new ticket. Automatically assigns the current user as the creator.",
+        tags=['Tickets']
+    ),
+    update=extend_schema(
+        summary="Update a ticket (Full)",
+        description="Customers can only update OPEN tickets. Staff have elevated update permissions.",
+        tags=['Tickets']
+    ),
+    partial_update=extend_schema(
+        summary="Update a ticket (Partial)",
+        description="Apply partial updates to ticket fields based on user role.",
+        tags=['Tickets']
+    ),
+    destroy=extend_schema(
+        summary="Delete a ticket",
+        description="Permanently deletes a ticket. Strictly requires Admin privileges.",
+        tags=['Tickets']
+    )
+)
 class TicketViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
@@ -25,6 +60,9 @@ class TicketViewSet(viewsets.ModelViewSet):
         return TicketSerializer
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Ticket.objects.none()
+        
         tenant_data = get_current_org(self.request, self.kwargs)
         membership = tenant_data['membership']
 
@@ -76,6 +114,19 @@ class TicketViewSet(viewsets.ModelViewSet):
 
         return super().destroy(request, *args, **kwargs)
     
+    @extend_schema(
+        summary="Assign ticket to agent",
+        description="Assigns an Open or In Progress ticket to an active agent/admin. Requires Admin privileges.",
+        tags=['Tickets'],
+        request=inline_serializer(
+            name='TicketAssignRequest',
+            fields={'agent': serializers.CharField(help_text="The ID of the user to assign the ticket to.")}
+        ),
+        responses={
+            200: inline_serializer(name='AssignSuccess', fields={'detail': serializers.CharField()}),
+            400: OpenApiTypes.OBJECT
+        }
+    )
     @action(detail=True, methods=['post'])
     def assign(self, request, slug=None, pk=None):
         tenant_data = get_current_org(request, self.kwargs, Membership.RoleChoices.ADMIN)
@@ -123,6 +174,16 @@ class TicketViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK
         )
     
+    @extend_schema(
+        summary="Resolve a ticket",
+        description="Marks an In Progress ticket as Resolved. Agents can only resolve tickets explicitly assigned to them.",
+        tags=['Tickets'],
+        request=None,
+        responses={
+            200: inline_serializer(name='ResolveSuccess', fields={'detail': serializers.CharField()}),
+            400: OpenApiTypes.OBJECT
+        }
+    )
     @action(detail=True, methods=['post'])
     def resolve(self, request, slug=None, pk=None):
         tenant_data = get_current_org(request, self.kwargs)
@@ -152,6 +213,16 @@ class TicketViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK
         )
     
+    @extend_schema(
+        summary="Close a ticket",
+        description="Marks a Resolved ticket as Closed. This finalizes the ticket lifecycle. Requires Admin privileges.",
+        tags=['Tickets'],
+        request=None,
+        responses={
+            200: inline_serializer(name='CloseSuccess', fields={'detail': serializers.CharField()}),
+            400: OpenApiTypes.OBJECT
+        }
+    )
     @action(detail=True, methods=['post'])
     def close(self, request, slug=None, pk=None):
         tenant_data = get_current_org(request, self.kwargs, Membership.RoleChoices.ADMIN)

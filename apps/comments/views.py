@@ -6,8 +6,21 @@ from apps.tickets.models import Ticket
 from .models import Comment
 from apps.organizations.models import Membership
 from rest_framework.exceptions import PermissionDenied
+from drf_spectacular.utils import extend_schema, extend_schema_view
 
-class CommentListCreatView(ListCreateAPIView):
+@extend_schema_view(
+    get=extend_schema(
+        summary="List ticket comments",
+        description="Returns a chronological timeline of comments for a specific ticket. **Note:** Internal notes are automatically stripped out if the requesting user is a Customer.",
+        tags=['Comments']
+    ),
+    post=extend_schema(
+        summary="Add a comment to ticket",
+        description="Creates a new comment. Agents and Admins can pass `{'is_internal': true}` to create private notes. If a Customer attempts to pass this flag, the backend safely overrides it to `false`.",
+        tags=['Comments']
+    )
+)
+class CommentListCreateView(ListCreateAPIView):
     serializer_class = CommentSerializer
 
     def get_ticket_and_check_permissions(self):
