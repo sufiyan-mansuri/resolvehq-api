@@ -1,12 +1,12 @@
 from pathlib import Path
 from datetime import timedelta
-import environ
+from environ import Env
 
-# We add one more .parent because this file is in config/settings/
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-env = environ.Env()
-environ.Env.read_env(BASE_DIR / '.env')
+env = Env()
+Env.read_env(BASE_DIR / '.env')
+ENVIRONMENT = env('ENVIRONMENT', default='production')
 
 DJANGO_APPS = [
     'django.contrib.admin',
@@ -22,6 +22,7 @@ THIRD_PARTY_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'django_filters',
     'drf_spectacular',
+    'admin_honeypot',
 ]
 
 LOCAL_APPS = [

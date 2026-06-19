@@ -1,8 +1,11 @@
 from .base import *
 
-SECRET_KEY = env('DJANGO_SECRET_KEY')
+SECRET_KEY = env('SECRET_KEY')
 
-DEBUG = True
+if ENVIRONMENT == 'development':
+    DEBUG = True
+else:
+    DEBUG = False
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
@@ -18,3 +21,4 @@ DATABASES = {
 }
 
 CORS_ALLOW_ALL_ORIGINS = True
+
